@@ -20,29 +20,42 @@ func (server *Server) createTransfer(ctx *gin.Context) {
 	var req transferRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		fmt.Println("Invalid request body:", err)
 		return
 	}
 
+	// Validate from account
 	if !server.validAccount(ctx, req.FromAccId, req.Currency) {
+		fmt.Println("From account validation failed:", req.FromAccId)
 		return
 	}
 
-	if server.validAccount(ctx, req.ToAccId, req.Currency) {
+	// Validate to account
+	if !server.validAccount(ctx, req.ToAccId, req.Currency) {
+		fmt.Println("To account validation failed:", req.ToAccId)
 		return
 	}
 
+	// Transfer transaction parameters
 	arg := db.TransferTxParams{
 		FromAccountId: req.FromAccId,
 		ToAccountId:   req.ToAccId,
 		Amount:        req.Amount,
 	}
 
+	// Log transfer details
+	fmt.Printf("Initiating transfer from %d to %d with amount %d\n", req.FromAccId, req.ToAccId, req.Amount)
+
+	// Perform the transfer
 	result, err := server.store.TransferTx(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		fmt.Println("Transfer transaction failed:", err)
 		return
 	}
 
+	// Log success and return the result
+	fmt.Println("Transfer transaction successful:", result)
 	ctx.JSON(http.StatusOK, result)
 }
 

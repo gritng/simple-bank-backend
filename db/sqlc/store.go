@@ -63,7 +63,7 @@ type TransferTxParams struct {
 }
 
 type TransferTxResult struct {
-	Transfer    Transfer `่json:"transger"`
+	Transfer    Transfer `่json:"transfer"`
 	FromAccount Account  `่json:"from_acc"`
 	ToAccount   Account  `่json:"to_acc"`
 	FromEntry   Entry    `่json:"from_entry"`
@@ -144,5 +144,9 @@ func addMoney(
 		ID:     accountId2,
 		Amount: amount2,
 	})
-	return
+	if err != nil {
+		return
+	}
+
+	return account1, account2, nil
 }
