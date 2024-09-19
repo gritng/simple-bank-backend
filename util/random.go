@@ -51,7 +51,7 @@ func RandomMoney() int64 {
 
 // RandomCurrency selects a random currency from a predefined list (USD, THB).
 func RandomCurrency() string {
-	currencies := []string{"USD", "THB"}
+	currencies := []string{USD, THB}
 	// n stores the number of available currencies.
 	n := len(currencies)
 	// Select a random currency from the slice using a random index.

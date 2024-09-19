@@ -6,14 +6,19 @@ import (
 	"fmt"
 )
 
-type Store struct {
+type Store interface {
+	Querier
+	TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error)
+}
+
+type SQLStore struct {
 	*Queries         // Embedding Queries to directly access its methods
 	db       *sql.DB // The database connection pool
 }
 
 // NewStore creates a new Store object.
-func NewStore(db *sql.DB) *Store {
-	return &Store{
+func NewStore(db *sql.DB) Store {
+	return &SQLStore{
 		db:      db,
 		Queries: New(db),
 	}
@@ -22,7 +27,7 @@ func NewStore(db *sql.DB) *Store {
 // execTx executes a function within a database transaction.
 // It accepts a context (ctx) and a function (fn) that takes *Queries and returns an error.
 // If the function fn is executed successfully, the transaction is committed. If an error occurs, the transaction is rolled back.
-func (store *Store) execTx(ctx context.Context, fn func(*Queries) error) error {
+func (store *SQLStore) execTx(ctx context.Context, fn func(*Queries) error) error {
 	// Begin a new transaction using the provided context (ctx).
 	tx, err := store.db.BeginTx(ctx, nil)
 	if err != nil {
@@ -69,7 +74,7 @@ var txKey = struct{}{}
 
 // perform money transfer from 1 acc to another
 // create transfer record, add account entries and update account balance in 1 transaction
-func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error) {
+func (store *SQLStore) TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error) {
 	var result TransferTxResult
 
 	err := store.execTx(ctx, func(q *Queries) error {
