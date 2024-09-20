@@ -8,8 +8,8 @@ import (
 )
 
 type Server struct {
-	store  db.Store
-	router *gin.Engine
+	store  db.Store    // for interact with database
+	router *gin.Engine // for routing
 }
 
 func NewServer(store db.Store) *Server {
@@ -24,6 +24,8 @@ func NewServer(store db.Store) *Server {
 	router.GET("/account/:id", server.getAccount)
 	router.GET("/account/list", server.listAccount)
 	router.POST("/transfer", server.createTransfer)
+
+	router.POST("/user/create", server.createUser)
 
 	server.router = router
 	return server

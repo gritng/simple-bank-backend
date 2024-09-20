@@ -13,7 +13,7 @@ func LoadConfig(path string) (config Config, err error) {
 	viper.SetConfigName("app")
 	viper.SetConfigType("env")
 
-	viper.AutomaticEnv()
+	viper.AutomaticEnv() // override config value if it is set somewhere else (terminal)
 
 	err = viper.ReadInConfig()
 	if err != nil {
